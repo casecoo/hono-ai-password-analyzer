@@ -16,6 +16,10 @@ The system analyzes a password using a 3-step pipeline:
 2.  **Anonymous AI Processing:** An "Anonymous Technical Meta-data Profile" is generated from the local calculations. The original raw password is discarded. This anonymous profile is sent securely to the Gemini API.
 3.  **Hybrid Output:** Gemini evaluates the metrics (looking for semantic weakness despite formal complexity) and returns a semanticScore. The system averages the two scores into a combined hybridScore (0-100) and returns the JSON payload to the user.
 
+## Data Validation with Zod
+
+To ensure data consistency and safety during runtime, this project uses the [Zod](https://zod.dev/) library. Zod provides schema-based validation that guarantees incoming API requests—such as the password and personal information payloads—strictly match the expected types and formats before any processing happens. This runtime validation prevents malformed data from causing unexpected errors or security issues, ensuring a predictable, robust, and safe data exchange.
+
 ## Requirements & Setup
 
 *   [Node.js](https://nodejs.org/) & [Bun](https://bun.sh/) (or NPM)
