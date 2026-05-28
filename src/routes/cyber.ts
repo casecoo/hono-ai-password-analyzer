@@ -13,17 +13,18 @@ export const cyberRoutes = new Hono<AppContext>()
 
         try {
 
-            const body = await c.req.json()
+            const body = c.req.valid('json')
 
             const inputText: string = body.password
             const personalInfo = body.personalInfo
+            const language = body.language
 
             if (!inputText) 
                 return c.json({error: 'Please send the text area.'}, 400)
 
             const aiService = new AIService(c)
 
-            const aiReport = await aiService.callGenAi(inputText, personalInfo)
+            const aiReport = await aiService.callGenAi(inputText, personalInfo, language)
 
              return c.json({
                 status: 'success',

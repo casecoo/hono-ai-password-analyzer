@@ -165,7 +165,11 @@ private processText(text: string, personalInfo: any): TextStats {
 }
 
 
-private getSystemPrompt(): string {
+private getSystemPrompt(language: string = 'en'): string {
+    let languageName = 'English';
+    if (language === 'tr') languageName = 'Turkish';
+    else if (language === 'fr') languageName = 'French';
+
     return [
         'You are a password security expert analyzing an Anonymous Technical Meta-data Profile.',
         'You will receive character statistics, Shannon entropy, and pattern analyses of a user password. THE RAW PASSWORD IS NOT PROVIDED to preserve "Privacy-by-Design".',
@@ -174,14 +178,14 @@ private getSystemPrompt(): string {
         'Provide your response exactly in this JSON format:',
         '{',
         '  "semanticScore": <an integer between 0 and 100 evaluating the semantic strength based on the provided stats and patterns>,',
-        '  "suggestions": ["suggestion 1", "suggestion 2", ...] (Provide up to 3 concise, actionable, and polite suggestions in English)',
+        `  "suggestions": ["suggestion 1", "suggestion 2", ...] (Provide up to 3 concise, actionable, and polite suggestions in ${languageName})`,
         '}',
         'Do NOT wrap the JSON in Markdown block. Output raw JSON only. Warn the user if their personal information is included.'
     ].join('\n');
 }
 
-private buildUserMessage(stats: TextStats): string {
-    const systemPrompt = this.getSystemPrompt();
+private buildUserMessage(stats: TextStats, language: string = 'en'): string {
+    const systemPrompt = this.getSystemPrompt(language);
     const statistics = [
         '{',
         `  "Uppercase letters": ${stats.upper},`,
@@ -201,7 +205,7 @@ private buildUserMessage(stats: TextStats): string {
     return `${systemPrompt}\n\nTechnical Profile:\n${statistics}`;
 }
  
-async callGenAi(text: string, personalInfo: any): Promise<AiReport> {
+async callGenAi(text: string, personalInfo: any, language: string = 'en'): Promise<AiReport> {
     // 1. Key and Model Settings
     const GEMINI_API_KEY= this.c.env.GEN_API_KEY;
     // Use env.GEN_MODEL if set, otherwise use 'gemini-2.5-flash'
@@ -227,7 +231,7 @@ async callGenAi(text: string, personalInfo: any): Promise<AiReport> {
         // Gemini API expects system instructions and user content separately
         
         // Ensure no raw passwords by logging or checking stats only.
-        const userMessage = this.buildUserMessage(stats);
+        const userMessage = this.buildUserMessage(stats, language);
 
         const body = {
             contents: [{
